@@ -19,7 +19,7 @@ const generateItemElement = function (item) {
   let editButton = `<button class='shopping-item-edit js-item-edit'>
   <span class='button-label'>edit</span>
 </button>`
-let residingString = ''
+let residingString = item.name
 if ($(`#n${item.id}`).val() != undefined) residingString = $(`#n${item.id}`).val()
   if (item.toEdit){
     itemTitle = `<form><input type="text" name="item" class="edit" value="${residingString}" id="n${item.id}"></form>`
@@ -56,9 +56,9 @@ const handleItemEdit = function(){
 
 const handleItemConfirm = function(){
   $("ul").on('click', ".shopping-item-confirm", function(){
-    let newName = $(".edit").val()
     let currId = $(this).parents(".js-item-element").attr('data-item-id')
     store.items.forEach(function(item){
+      let newName = $(`#n${item.id}`).val()
       if (currId === item.id){
       item.name = newName
       item.toEdit=false
