@@ -1,9 +1,9 @@
 const store = {
   items: [
-    { id: cuid(), name: 'apples', checked: false },
-    { id: cuid(), name: 'oranges', checked: false },
-    { id: cuid(), name: 'milk', checked: true },
-    { id: cuid(), name: 'bread', checked: false }
+    { id: cuid(), name: 'apples', checked: false, toEdit: false },
+    { id: cuid(), name: 'oranges', checked: false, toEdit: false },
+    { id: cuid(), name: 'milk', checked: true, toEdit: false },
+    { id: cuid(), name: 'bread', checked: false, toEdit: false }
   ],
   hideCheckedItems: false
 };
@@ -16,6 +16,19 @@ const generateItemElement = function (item) {
     `;
   }
 
+  let editButton = `<button class='shopping-item-edit js-item-edit'>
+  <span class='button-label'>edit</span>
+</button>`
+let residingString = ''
+if ($(`#n${item.id}`).val() != undefined) residingString = $(`#n${item.id}`).val()
+  if (item.toEdit){
+    itemTitle = `<form><input type="text" name="item" class="edit" value="${residingString}" id="n${item.id}"></form>`
+    editButton = `<button class='shopping-item-confirm js-item-confirm'>
+    <span class='button-label'>confirm</span>
+  </button>`
+  }
+
+
   return `
     <li class='js-item-element' data-item-id='${item.id}'>
       ${itemTitle}
@@ -26,9 +39,33 @@ const generateItemElement = function (item) {
         <button class='shopping-item-delete js-item-delete'>
           <span class='button-label'>delete</span>
         </button>
+        ${editButton}
       </div>
     </li>`;
 };
+
+const handleItemEdit = function(){
+    $("ul").on('click', ".shopping-item-edit", function(){
+      let currId = $(this).parents(".js-item-element").attr('data-item-id')
+      store.items.forEach(function(item){
+        if (currId === item.id) item.toEdit = true;
+      })
+      render()
+    })
+}
+
+const handleItemConfirm = function(){
+  $("ul").on('click', ".shopping-item-confirm", function(){
+    let newName = $(".edit").val()
+    let currId = $(this).parents(".js-item-element").attr('data-item-id')
+    store.items.forEach(function(item){
+      if (currId === item.id){
+      item.name = newName
+      item.toEdit=false
+    }})
+  render()
+  })
+}
 
 const generateShoppingItemsString = function (shoppingList) {
   const items = shoppingList.map((item) => generateItemElement(item));
@@ -160,6 +197,8 @@ const handleShoppingList = function () {
   handleItemCheckClicked();
   handleDeleteItemClicked();
   handleToggleFilterClick();
+  handleItemEdit()
+  handleItemConfirm()
 };
 
 // when the page loads, call `handleShoppingList`
